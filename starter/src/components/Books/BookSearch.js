@@ -1,4 +1,4 @@
-const Book = ({ selectShelf, book }) => {
+const BookSearch = ({ selectShelf, book }) => {
   return (
     <div className="book">
       <div className="book-top">
@@ -8,15 +8,15 @@ const Book = ({ selectShelf, book }) => {
         <div className="book-shelf-changer">
           <select
             value={book.shelf}
+            defaultValue={"none"}
             onChange={(e) => selectShelf(book, e.target.value)}
           >
             <option value="none" disabled>
-              Move to...
+              Add to...
             </option>
             <option value="currentlyReading">Currently Reading</option>
             <option value="wantToRead">Want to Read</option>
             <option value="read">Read</option>
-            <option value="none">None</option>
           </select>
         </div>
       </div>
@@ -26,4 +26,4 @@ const Book = ({ selectShelf, book }) => {
   );
 };
 
-export default Book;
+export default BookSearch;

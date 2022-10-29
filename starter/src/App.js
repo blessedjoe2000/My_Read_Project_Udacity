@@ -3,24 +3,21 @@ import { useEffect, useState } from "react";
 import { get, getAll, search, update } from "./BooksAPI";
 import "./components/Books/book.css";
 import Book from "./components/Books/Book";
+import BookSearch from "./components/Books/BookSearch";
 
 function App() {
   const [showSearchPage, setShowSearchpage] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [searchResult, setSearchResult] = useState([]);
-  const [shelf, setShelf] = useState("");
   const [bookResult, setBookResult] = useState([]);
-  const [books, setBooks] = useState([]);
+  const [changeShelf, setChangeShelf] = useState([]);
 
   const handleChange = async (event) => {
     event.preventDefault();
     setSearchValue(event.target.value);
     let result = await search(event.target.value);
+    console.log("search book", result);
     setSearchResult(result);
-  };
-
-  const selectShelf = async (event) => {
-    setShelf(event.target.value);
   };
 
   const allBooks = async () => {
@@ -30,7 +27,13 @@ function App() {
 
   useEffect(() => {
     allBooks();
-  }, []);
+  }, [changeShelf]);
+
+  const selectShelf = async (book, shelf) => {
+    const response = await update(book, shelf);
+    console.log("shelf book", book);
+    setChangeShelf(response);
+  };
 
   return (
     <div className="app">
@@ -54,37 +57,12 @@ function App() {
             </div>
           </div>
           <div className="search-books-results">
+            {searchResult.map((book) => (book.shelf = ""))}
             <ol className="books-grid">
-              {searchResult.map((result, id) => {
+              {searchResult.map((book) => {
                 return (
                   <li>
-                    <div className="book">
-                      <div className="book-top">
-                        <div className="book-cover">
-                          <img
-                            src={result.imageLinks.thumbnail}
-                            alt={result.title}
-                          />
-                        </div>
-                        <div className="book-shelf-changer">
-                          <select>
-                            <option value="none" disabled>
-                              Move to...
-                            </option>
-                            <option value="currentlyReading">
-                              Currently Reading
-                            </option>
-                            <option value="wantToRead">Want to Read</option>
-                            <option value="read">Read</option>
-                            <option value="none">None</option>
-                          </select>
-                        </div>
-                      </div>
-                      <div className="book-title">{result.title}</div>
-                      <div className="book-authors">
-                        {result.authors.map((author) => author)}
-                      </div>
-                    </div>
+                    <BookSearch selectShelf={selectShelf} book={book} />
                   </li>
                 );
               })}
@@ -102,13 +80,15 @@ function App() {
                 <h2 className="bookshelf-title">Want to Read</h2>;
                 <div className="bookshelf-books">
                   <ol className="books-grid">
-                    {bookResult.map((book) => {
-                      return (
-                        <li>
-                          <Book selectShelf={selectShelf} book={book} />
-                        </li>
-                      );
-                    })}
+                    {bookResult
+                      .filter((book) => book.shelf === "wantToRead")
+                      .map((book) => {
+                        return (
+                          <li>
+                            <Book selectShelf={selectShelf} book={book} />
+                          </li>
+                        );
+                      })}
                   </ol>
                 </div>
               </div>
@@ -117,53 +97,15 @@ function App() {
                 <h2 className="bookshelf-title">Currently Reading</h2>;
                 <div className="bookshelf-books">
                   <ol className="books-grid">
-                    <li>
-                      <div className="book">
-                        <div className="book-top">
-                          <div
-                            id="to-kill-a-mockingbird"
-                            className="book-cover"
-                          ></div>
-                          <div className="book-shelf-changer">
-                            <select>
-                              <option value="none" disabled>
-                                Move to...
-                              </option>
-                              <option value="currentlyReading">
-                                Currently Reading
-                              </option>
-                              <option value="wantToRead">Want to Read</option>
-                              <option value="read">Read</option>
-                              <option value="none">None</option>
-                            </select>
-                          </div>
-                        </div>
-                        <div className="book-title">To Kill a Mockingbird</div>
-                        <div className="book-authors">Harper Lee</div>
-                      </div>
-                    </li>
-                    <li>
-                      <div className="book">
-                        <div className="book-top">
-                          <div id="enders-game" className="book-cover"></div>
-                          <div className="book-shelf-changer">
-                            <select>
-                              <option value="none" disabled>
-                                Move to...
-                              </option>
-                              <option value="currentlyReading">
-                                Currently Reading
-                              </option>
-                              <option value="wantToRead">Want to Read</option>
-                              <option value="read">Read</option>
-                              <option value="none">None</option>
-                            </select>
-                          </div>
-                        </div>
-                        <div className="book-title">Ender's Game</div>
-                        <div className="book-authors">Orson Scott Card</div>
-                      </div>
-                    </li>
+                    {bookResult
+                      .filter((book) => book.shelf === "currentlyReading")
+                      .map((book) => {
+                        return (
+                          <li>
+                            <Book selectShelf={selectShelf} book={book} />
+                          </li>
+                        );
+                      })}
                   </ol>
                 </div>
               </div>
@@ -172,82 +114,15 @@ function App() {
                 <h2 className="bookshelf-title">Read</h2>;
                 <div className="bookshelf-books">
                   <ol className="books-grid">
-                    <li>
-                      <div className="book">
-                        <div className="book-top">
-                          <div id="the-hobbit" className="book-cover"></div>
-                          <div className="book-shelf-changer">
-                            <select>
-                              <option value="none" disabled>
-                                Move to...
-                              </option>
-                              <option value="currentlyReading">
-                                Currently Reading
-                              </option>
-                              <option value="wantToRead">Want to Read</option>
-                              <option value="read">Read</option>
-                              <option value="none">None</option>
-                            </select>
-                          </div>
-                        </div>
-                        <div className="book-title">The Hobbit</div>
-                        <div className="book-authors">J.R.R. Tolkien</div>
-                      </div>
-                    </li>
-                    <li>
-                      <div className="book">
-                        <div className="book-top">
-                          <div
-                            id="the-places-you-go"
-                            className="book-cover"
-                          ></div>
-                          <div className="book-shelf-changer">
-                            <select>
-                              <option value="none" disabled>
-                                Move to...
-                              </option>
-                              <option value="currentlyReading">
-                                Currently Reading
-                              </option>
-                              <option value="wantToRead">Want to Read</option>
-                              <option value="read">Read</option>
-                              <option value="none">None</option>
-                            </select>
-                          </div>
-                        </div>
-                        <div className="book-title">
-                          Oh, the Places You'll Go!
-                        </div>
-                        <div className="book-authors">Seuss</div>
-                      </div>
-                    </li>
-                    <li>
-                      <div className="book">
-                        <div className="book-top">
-                          <div
-                            id="the-adventure-of-tom-sawyer"
-                            className="book-cover"
-                          ></div>
-                          <div className="book-shelf-changer">
-                            <select>
-                              <option value="none" disabled>
-                                Move to...
-                              </option>
-                              <option value="currentlyReading">
-                                Currently Reading
-                              </option>
-                              <option value="wantToRead">Want to Read</option>
-                              <option value="read">Read</option>
-                              <option value="none">None</option>
-                            </select>
-                          </div>
-                        </div>
-                        <div className="book-title">
-                          The Adventures of Tom Sawyer
-                        </div>
-                        <div className="book-authors">Mark Twain</div>
-                      </div>
-                    </li>
+                    {bookResult
+                      .filter((book) => book.shelf === "read")
+                      .map((book) => {
+                        return (
+                          <li>
+                            <Book selectShelf={selectShelf} book={book} />
+                          </li>
+                        );
+                      })}
                   </ol>
                 </div>
               </div>
