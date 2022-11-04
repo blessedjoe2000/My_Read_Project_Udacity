@@ -12,28 +12,101 @@ function App() {
   const [bookResult, setBookResult] = useState([]);
   const [changeShelf, setChangeShelf] = useState([]);
 
+  const allBooks = async () => {
+    try {
+      const result = await getAll();
+      setBookResult(result);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   const handleChange = async (event) => {
     event.preventDefault();
     setSearchValue(event.target.value);
-    let result = await search(event.target.value);
-    console.log("search book", result);
-    setSearchResult(result);
+    let searchedBook = await search(event.target.value);
+
+    if (searchedBook.error || searchValue === " ") {
+      console.log("value: " + searchValue);
+      console.log("error searching books " + searchedBook.error);
+      setSearchResult([]);
+      return;
+    }
+    setSearchResult(
+      searchedBook.map((searchedBook) => {
+        const bookInShelf = bookResult.find(
+          (book) => book.id === searchedBook.id
+        );
+        if (bookInShelf) searchedBook.shelf = bookInShelf.shelf;
+        return searchedBook;
+      })
+    );
   };
 
-  const allBooks = async () => {
-    const result = await getAll();
-    setBookResult(result);
+  // const searchBooks = async () => {
+  //   try {
+  //     let searchedBooks = await search(searchValue);
+  //     console.log("searched books ", searchedBooks);
+  //     if (searchedBooks.error) {
+  //       console.log("error found during search " + searchedBooks.error);
+  //       setSearchResult([]);
+  //       return;
+  //     }
+  // setSearchResult(
+  //   searchedBooks.map((searchedBook) => {
+  //     const bookInShelf = bookResult.find(
+  //       (book) => book.id === searchedBook.id
+  //     );
+  //     if (bookInShelf) searchedBook.shelf = bookInShelf.shelf;
+  //     return searchedBook;
+  //   })
+  // );
+  //   } catch (err) {
+  //     console.log(err);
+  //   }
+  // };
+
+  const selectShelf = async (book, shelf) => {
+    const response = await update(book, shelf);
+    console.log("book", book, "shelf", shelf);
+    console.log("updated", response);
+    setChangeShelf(response);
+    console.log("book result", bookResult);
   };
+
+  // const selectShelf = async (book, shelf) => {
+  //   try {
+  //     const response = await update(book, shelf);
+  //     console.log("book", book, "shelf", shelf);
+  //     console.log("updated", response);
+  //     setChangeShelf(response);
+  //     console.log("book result", bookResult);
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
 
   useEffect(() => {
     allBooks();
   }, [changeShelf]);
 
-  const selectShelf = async (book, shelf) => {
-    const response = await update(book, shelf);
-    console.log("shelf book", book);
-    setChangeShelf(response);
-  };
+  // useEffect(() => {
+  //   if (searchValue) {
+  //     searchBooks();
+  //     return;
+  //   }
+  //   if (!searchValue || !showSearchPage) {
+  //     setSearchResult([]);
+  //     return;
+  //   }
+  // }, [searchValue]);
+
+  // useEffect(() => {
+  //   if (!showSearchPage) {
+  //     setSearchResult([]);
+  //     setSearchValue(" ");
+  //   }
+  // }, [showSearchPage]);
 
   return (
     <div className="app">
@@ -57,7 +130,6 @@ function App() {
             </div>
           </div>
           <div className="search-books-results">
-            {searchResult.map((book) => (book.shelf = ""))}
             <ol className="books-grid">
               {searchResult.map((book) => {
                 return (
@@ -77,7 +149,7 @@ function App() {
           <div className="list-books-content">
             <div>
               <div className="bookshelf">
-                <h2 className="bookshelf-title">Want to Read</h2>;
+                <h2 className="bookshelf-title">Want to Read</h2>
                 <div className="bookshelf-books">
                   <ol className="books-grid">
                     {bookResult
@@ -94,7 +166,7 @@ function App() {
               </div>
 
               <div className="bookshelf">
-                <h2 className="bookshelf-title">Currently Reading</h2>;
+                <h2 className="bookshelf-title">Currently Reading</h2>
                 <div className="bookshelf-books">
                   <ol className="books-grid">
                     {bookResult
@@ -111,7 +183,7 @@ function App() {
               </div>
 
               <div className="bookshelf">
-                <h2 className="bookshelf-title">Read</h2>;
+                <h2 className="bookshelf-title">Read</h2>
                 <div className="bookshelf-books">
                   <ol className="books-grid">
                     {bookResult

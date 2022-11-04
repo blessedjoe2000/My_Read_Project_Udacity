@@ -2,9 +2,12 @@ const Book = ({ selectShelf, book }) => {
   return (
     <div className="book">
       <div className="book-top">
-        <div className="book-cover">
-          <img src={book.imageLinks.thumbnail} />
-        </div>
+        <div
+          className="book-cover"
+          style={{
+            backgroundImage: `url(${book.imageLinks.thumbnail})`,
+          }}
+        ></div>
         <div className="book-shelf-changer">
           <select
             value={book.shelf}
@@ -21,7 +24,9 @@ const Book = ({ selectShelf, book }) => {
         </div>
       </div>
       <div className="book-title">{book.title}</div>
-      <div className="book-authors">{book.authors.join(", ")}</div>
+      <div className="book-authors">
+        {book.authors ? book.authors.join(", ") : "unknown author"}
+      </div>
     </div>
   );
 };
