@@ -8,13 +8,13 @@ const BookSearch = ({ selectShelf, book }) => {
           className="book-cover"
           style={{
             backgroundImage: `url(${
-              book?.imageLinks?.thumbnail ? book.imageLinks.thumbnail : ""
+              book.imageLinks?.thumbnail ? book.imageLinks.thumbnail : ""
             })`,
           }}
         ></div>
         <div className="book-shelf-changer">
           <select
-            value={book?.shelf || "none"}
+            value={book.shelf || "none"}
             onChange={(e) => selectShelf(book, e.target.value)}
           >
             <option value="none" disabled>
@@ -28,7 +28,7 @@ const BookSearch = ({ selectShelf, book }) => {
       </div>
       <div className="book-title">{book?.title}</div>
       <div className="book-authors">
-        {book?.authors ? book?.authors.join(", ") : "unknown author"}
+        {book.authors ? book.authors.join(", ") : "unknown author"}
       </div>
     </div>
   );
