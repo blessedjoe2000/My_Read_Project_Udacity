@@ -26,9 +26,7 @@ function App() {
     setSearchValue(event.target.value);
     let searchedBook = await search(event.target.value);
 
-    if (searchedBook.error || searchValue === " ") {
-      console.log("value: " + searchValue);
-      console.log("error searching books " + searchedBook.error);
+    if (!searchedBook || event.target.value === "") {
       setSearchResult([]);
       return;
     }
@@ -37,76 +35,22 @@ function App() {
         const bookInShelf = bookResult.find(
           (book) => book.id === searchedBook.id
         );
-        if (bookInShelf) searchedBook.shelf = bookInShelf.shelf;
+        if (bookInShelf) {
+          searchedBook.shelf = bookInShelf.shelf;
+        }
         return searchedBook;
       })
     );
   };
 
-  // const searchBooks = async () => {
-  //   try {
-  //     let searchedBooks = await search(searchValue);
-  //     console.log("searched books ", searchedBooks);
-  //     if (searchedBooks.error) {
-  //       console.log("error found during search " + searchedBooks.error);
-  //       setSearchResult([]);
-  //       return;
-  //     }
-  // setSearchResult(
-  //   searchedBooks.map((searchedBook) => {
-  //     const bookInShelf = bookResult.find(
-  //       (book) => book.id === searchedBook.id
-  //     );
-  //     if (bookInShelf) searchedBook.shelf = bookInShelf.shelf;
-  //     return searchedBook;
-  //   })
-  // );
-  //   } catch (err) {
-  //     console.log(err);
-  //   }
-  // };
-
   const selectShelf = async (book, shelf) => {
     const response = await update(book, shelf);
-    console.log("book", book, "shelf", shelf);
-    console.log("updated", response);
     setChangeShelf(response);
-    console.log("book result", bookResult);
   };
-
-  // const selectShelf = async (book, shelf) => {
-  //   try {
-  //     const response = await update(book, shelf);
-  //     console.log("book", book, "shelf", shelf);
-  //     console.log("updated", response);
-  //     setChangeShelf(response);
-  //     console.log("book result", bookResult);
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
 
   useEffect(() => {
     allBooks();
   }, [changeShelf]);
-
-  // useEffect(() => {
-  //   if (searchValue) {
-  //     searchBooks();
-  //     return;
-  //   }
-  //   if (!searchValue || !showSearchPage) {
-  //     setSearchResult([]);
-  //     return;
-  //   }
-  // }, [searchValue]);
-
-  // useEffect(() => {
-  //   if (!showSearchPage) {
-  //     setSearchResult([]);
-  //     setSearchValue(" ");
-  //   }
-  // }, [showSearchPage]);
 
   return (
     <div className="app">
