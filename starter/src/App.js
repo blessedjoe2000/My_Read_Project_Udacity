@@ -1,9 +1,13 @@
 import "./App.css";
 import { useEffect, useState } from "react";
-import { get, getAll, search, update } from "./BooksAPI";
+import { getAll, search, update } from "./BooksAPI";
 import "./components/Books/book.css";
-import Book from "./components/Books/Book";
-import BookSearch from "./components/Books/BookSearch";
+import {
+  WantToRead,
+  CurrentlyReading,
+  Read,
+} from "./components/Books/BookShelves";
+import { BookSearch } from "./components/Books/Books";
 
 function App() {
   const [showSearchPage, setShowSearchpage] = useState(false);
@@ -19,6 +23,11 @@ function App() {
     } catch (err) {
       console.log(err);
     }
+  };
+
+  const selectShelf = async (book, shelf) => {
+    const response = await update(book, shelf);
+    setChangeShelf(response);
   };
 
   const handleChange = async (event) => {
@@ -43,11 +52,6 @@ function App() {
     );
   };
 
-  const selectShelf = async (book, shelf) => {
-    const response = await update(book, shelf);
-    setChangeShelf(response);
-  };
-
   useEffect(() => {
     allBooks();
   }, [changeShelf]);
@@ -58,6 +62,7 @@ function App() {
         <div className="search-books">
           <div className="search-books-bar">
             <a
+              href="/"
               className="close-search"
               onClick={() => setShowSearchpage(!showSearchPage)}
             >
@@ -92,60 +97,16 @@ function App() {
           </div>
           <div className="list-books-content">
             <div>
-              <div className="bookshelf">
-                <h2 className="bookshelf-title">Want to Read</h2>
-                <div className="bookshelf-books">
-                  <ol className="books-grid">
-                    {bookResult
-                      .filter((book) => book.shelf === "wantToRead")
-                      .map((book) => {
-                        return (
-                          <li>
-                            <Book selectShelf={selectShelf} book={book} />
-                          </li>
-                        );
-                      })}
-                  </ol>
-                </div>
-              </div>
-
-              <div className="bookshelf">
-                <h2 className="bookshelf-title">Currently Reading</h2>
-                <div className="bookshelf-books">
-                  <ol className="books-grid">
-                    {bookResult
-                      .filter((book) => book.shelf === "currentlyReading")
-                      .map((book) => {
-                        return (
-                          <li>
-                            <Book selectShelf={selectShelf} book={book} />
-                          </li>
-                        );
-                      })}
-                  </ol>
-                </div>
-              </div>
-
-              <div className="bookshelf">
-                <h2 className="bookshelf-title">Read</h2>
-                <div className="bookshelf-books">
-                  <ol className="books-grid">
-                    {bookResult
-                      .filter((book) => book.shelf === "read")
-                      .map((book) => {
-                        return (
-                          <li>
-                            <Book selectShelf={selectShelf} book={book} />
-                          </li>
-                        );
-                      })}
-                  </ol>
-                </div>
-              </div>
+              <WantToRead bookResult={bookResult} selectShelf={selectShelf} />
+              <CurrentlyReading
+                bookResult={bookResult}
+                selectShelf={selectShelf}
+              />
+              <Read bookResult={bookResult} selectShelf={selectShelf} />
             </div>
           </div>
           <div className="open-search">
-            <a onClick={() => setShowSearchpage(!showSearchPage)}>Add a book</a>
+            <button onClick={() => setShowSearchpage(!showSearchPage)}>Add a book</button>
           </div>
         </div>
       )}
